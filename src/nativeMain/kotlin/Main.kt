@@ -14,7 +14,10 @@ const val SKILL_DATA  = "data/Skill_date.txt.json"
 
 @ImplicitReflectionSerializer
 fun main() {
+
     var target = -1
+
+    setlocale(LC_ALL, "zh_CN.UTF-8")
 
     // 初始化 data
     val workers = arrayOf(
