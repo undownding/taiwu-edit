@@ -40,15 +40,19 @@ fun main() {
 
     val lines = arrayListOf<String>()
     memScoped {
+        var tmpStr: String? = ""
         val buffer = ByteArray(2048000)
         var scan = fgets(buffer.refTo(0), buffer.size, inputFp)
         if (scan != null) {
             while (scan != null) {
-                lines.add(scan.toKString())
+//                lines.add(scan.toKString())
+                tmpStr += scan.toKString()
                 scan = fgets(buffer.refTo(0), buffer.size, inputFp)
             }
         }
         fclose(inputFp)
+        lines.addAll(tmpStr!!.split("\n").map { "$it\n" })
+        tmpStr = null
     }
     println("正在解析数据...")
     if (lines.size == 1) { // 旧版存档
@@ -113,7 +117,7 @@ fun main() {
             println()
             when (args[0]) {
                 "h", "?", "help" -> consoleHelper.help()
-                "exit", "quit" -> exitProcess(0)
+                "exit", "quit", "q" -> exitProcess(0)
                 "gongfa", "g", "gf" -> {
                     if (args.size >= 2) {
                         when (args[1]) {
@@ -314,7 +318,8 @@ fun main() {
                     val fileLines = arrayListOf<String>()
                     memScoped {
                         val fp = fopen(filename, "r")
-                        val buffer = ByteArray(2048000)
+                        // skills.data 我给你个 4M 缓存怎么都不会爆了吧
+                        val buffer = ByteArray(4096000)
                         var fscan = fgets(buffer.refTo(0), buffer.size, fp)
                         if (fscan != null) {
                             while (fscan != null) {
