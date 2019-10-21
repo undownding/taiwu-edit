@@ -136,7 +136,7 @@ fun main() {
                                         }
                                     }
                                     gongFaBookHelper.add(BooksHelper.Book(id).apply {
-                                        val pages = if (args.size >= 6) args[4].toInt() else 0
+                                        val pages = if (args.size >= 6) args[5].toInt() else 0
                                         percent = when(gongFa.side) {
                                             GongFasHelper.GongFa.Side.OBVERSE, GongFasHelper.GongFa.Side.REVERSE ->
                                                 maxOf(6, pages)
