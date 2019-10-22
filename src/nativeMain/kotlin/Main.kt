@@ -3,6 +3,7 @@ import kotlinx.cinterop.*
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.*
 import platform.posix.*
+import platform.windows.tagCHARSETINFO
 import kotlin.native.concurrent.TransferMode
 import kotlin.native.concurrent.Worker
 
@@ -17,7 +18,7 @@ fun main() {
 
     var target = -1
 
-    setlocale(LC_ALL, "zh_CN.UTF-8")
+    setlocale(LC_ALL, "chs")
 
     // 初始化 data
     val workers = arrayOf(
@@ -28,15 +29,15 @@ fun main() {
     val fileName = if (access(SAVE_FILE_V1, 2) == 0) SAVE_FILE_V1 else if (access(SAVE_FILE_V0, 2) == 0) SAVE_FILE_V0 else ""
 
     if (fileName.isEmpty()) {
-        println("当前目录下没有存档文件！")
+        printlnChs("当前目录下没有存档文件！")
         readLine()
         return
     }
 
-    println("正在读取 $fileName ...")
+    printlnChs("正在读取 $fileName ...")
     val inputFp = fopen(fileName, "r")
     if (inputFp == null) {
-        println("读取失败！")
+        printlnChs("读取失败！")
         readLine()
         return
     }
@@ -57,9 +58,9 @@ fun main() {
         lines.addAll(tmpStr!!.split("\n").map { "$it\n" })
         tmpStr = null
     }
-    println("正在解析数据...")
+    printlnChs("正在解析数据...")
     if (lines.size == 1) { // 旧版存档
-        println("暂不支持旧版存档！")
+        printlnChs("暂不支持旧版存档！")
         readLine()
         return
     }
@@ -77,7 +78,7 @@ fun main() {
         }
     }
     if (target == -1 || target >= lines.size - 1) {
-        println("数据有误！")
+        printlnChs("数据有误！")
         readLine()
         return
     }
@@ -105,9 +106,9 @@ fun main() {
 
     workers.forEach { it.consume {  } }
 
-    println()
-    println("读取成功！角色名字：$actorName 角色id：$actorId")
-    println()
+    printlnChs()
+    printlnChs("读取成功！角色名字：$actorName 角色id：$actorId")
+    printlnChs()
 
 
     val consoleHelper = ConsoleHelper()
@@ -117,14 +118,14 @@ fun main() {
         val cmd = consoleHelper.propmpt()
         val args = cmd?.split("\\s+".toRegex())?.dropLastWhile { it.isEmpty() } ?: arrayListOf("")
         if (args.isNotEmpty()) {
-            println()
+            printlnChs()
             when (args[0]) {
                 "h", "?", "help" -> consoleHelper.help()
                 "exit", "quit", "q" -> exitProcess(0)
                 "gongfa", "g", "gf" -> {
                     if (args.size >= 2) {
                         when (args[1]) {
-                            "list", "l" -> { gongFas.forEach { gf -> println(gf.toString()) } }
+                            "list", "l" -> { gongFas.forEach { gf -> printlnChs(gf.toString()) } }
                             "add", "a" -> {
                                 if (args.size >= 3) {
                                     val id = args[2]
@@ -152,10 +153,10 @@ fun main() {
                                         }
                                     })
                                     gongFas.add(gongFa)
-                                    println(gongFa)
-                                    println("已添加")
+                                    printlnChs(gongFa)
+                                    printlnChs("已添加")
                                 } else {
-                                    println("缺少 id")
+                                    printlnChs("缺少 id")
                                 }
                             }
                             "remove", "r", "delete", "d" -> {
@@ -163,29 +164,29 @@ fun main() {
                                     val id = args[2]
                                     val gongFa = gongFas.find { it.id == id }
                                     if (gongFa != null) {
-                                        println(gongFa)
+                                        printlnChs(gongFa)
                                         gongFas.remove(gongFa)
                                         if (gongFaBookHelper.exists(id)) {
                                             gongFaBookHelper.remove(id)
                                         }
-                                        println("已移除")
+                                        printlnChs("已移除")
                                     } else {
-                                        println("查无此法")
+                                        printlnChs("查无此法")
                                     }
                                 } else {
-                                    println("缺少 id")
+                                    printlnChs("缺少 id")
                                 }
                             }
                         }
                     } else {
-                        println("参数不足")
+                        printlnChs("参数不足")
                     }
                 }
                 "skill", "skills", "s" -> {
                     if (args.size >= 2) {
                         when (args[1]) {
                             "list", "l" -> {
-                                skills.forEach { skill -> println(skill) }
+                                skills.forEach { skill -> printlnChs(skill) }
                             }
                             "add", "a" -> {
                                 if (args.size >= 3) {
@@ -197,10 +198,10 @@ fun main() {
                                     if (targetSkill != null) {
                                         skills.remove(targetSkill)
                                     }
-                                    skills.add(SkillsHelper.Skill(id, percent, skillBookHelper).apply { println(this) })
-                                    println("已添加")
+                                    skills.add(SkillsHelper.Skill(id, percent, skillBookHelper).apply { printlnChs(this) })
+                                    printlnChs("已添加")
                                 } else {
-                                    println("缺少 id")
+                                    printlnChs("缺少 id")
                                 }
                             }
                             "remove", "r", "delete", "d" -> {
@@ -208,22 +209,22 @@ fun main() {
                                     val id = args[2]
                                     val skill = skills.find { it.id == id }
                                     if (skill != null) {
-                                        println(skill)
+                                        printlnChs(skill)
                                         skills.remove(skill)
                                         if (skillBookHelper.exists(id)) {
                                             skillBookHelper.remove(id)
                                         }
-                                        println("已移除")
+                                        printlnChs("已移除")
                                     } else {
-                                        println("查无此艺")
+                                        printlnChs("查无此艺")
                                     }
                                 } else {
-                                    println("缺少 id")
+                                    printlnChs("缺少 id")
                                 }
                             }
                         }
                     } else {
-                        println("参数不足")
+                        printlnChs("参数不足")
                     }
                 }
                 "save", "export" -> {
@@ -295,9 +296,9 @@ fun main() {
                                     fputs(it, outputFp)
                                 }
                                 fclose(outputFp)
-                                println("写入成功!")
+                                printlnChs("写入成功!")
                             } else {
-                                println("写入失败")
+                                printlnChs("写入失败")
                             }
                         } else {
                             val filename = if (args.size > 1) args[1] else "skills.data"
@@ -309,9 +310,9 @@ fun main() {
                                     fputs(it, outputFp)
                                 }
                                 fclose(outputFp)
-                                println("导出成功!")
+                                printlnChs("导出成功!")
                             } else {
-                                println("导出失败")
+                                printlnChs("导出失败")
                             }
                         }
                     }
@@ -351,9 +352,9 @@ fun main() {
                         lines.forEach {
                             fputs(it, outputFp)
                         }
-                        println("导入成功！按回车后程序将自动退出。如需继续修改请重新运行。")
+                        printlnChs("导入成功！按回车后程序将自动退出。如需继续修改请重新运行。")
                     } else {
-                        println("导入失败！请重新运行本程序。")
+                        printlnChs("导入失败！请重新运行本程序。")
                     }
 
                     readLine()
